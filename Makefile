@@ -16,4 +16,5 @@ init-go:
 build:
 	go build -o api cmd/main.go
 
-	
+report:
+	go tool cover -html=coverage.out -o cover.html
