@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/oreillyross/hello-go/handlers/rest"
 )
 
 func main() {
@@ -12,22 +14,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		enc := json.NewEncoder(w)
-		w.Header().
-			Set("Content-Type", "application/json; charset=utf-8")
-		resp := Resp{
-			Language:    "English",
-			Translation: "Hello",
-		}
-    if err := enc.Encode(resp); err != nil {
-      panic("Unable to encode response" )
-    }
-
-	})
-    log.Printf("Listening on %v", addr)
-    log.Fatal(http.ListenAndServe(addr, mux))
-
+	mux.HandleFunc("/hello", rest.TranslateHandler)
+	log.Printf("Listening on %v", addr)
+	log.Fatal(http.ListenAndServe(addr, mux))
 
 }
 
