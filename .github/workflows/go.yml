@@ -11,6 +11,40 @@ on:
 
 jobs:
 
+  deliver: 
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download binary
+        uses: actions/download-artifact@v2
+        with:
+          name: api
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with: 
+          tag_name: ${{github.ref}}
+        release_name: Release ${{github.ref}}
+        body: |
+        draft: true
+        prerelease: true
+      - name: Upload Release Binary
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN:
+            ${{secrets.GITHUB_TOKEN}}
+        with: 
+          upload_url:
+            ${{steps.create_release.outputs.upload_url}}
+          asset_path: api
+          asset_name: api
+          asset_content_type: application/octet-stream
+  
   build:
     runs-on: ubuntu-latest
     steps:
@@ -23,3 +57,9 @@ jobs:
 
     - name: Build
       run: make build
+
+    - name: Coverage check
+      run: make coverage
+
+    - name: Generate Report
+      run: make report
